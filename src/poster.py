@@ -41,7 +41,17 @@ ROBINSON_CRS = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_def
 COLOR_BACKGROUND = "#F4EEE1"  # warm ivory / parchment
 COLOR_UNVISITED = "#E4DCC9"  # light warm grey / cream
 COLOR_VISITED = "#B8933E"  # restrained antique gold
-COLOR_BORDER = "#9C8F72"  # thin, subtle warm country border
+
+# V1.3: split into two border weights/colors so adjacent visited (gold)
+# countries stop visually merging into one block -- the fill colors
+# themselves are unchanged. Visited borders are a dark antique bronze,
+# distinctly darker than the gold fill; unvisited borders keep the
+# original subtle warm tone, kept slightly lighter than visited borders
+# as specified.
+COLOR_BORDER_VISITED = "#5A4420"  # dark antique bronze -- visible against gold fill
+COLOR_BORDER_UNVISITED = "#9C8F72"  # thin, subtle warm border (unchanged from V1.2)
+BORDER_LINEWIDTH_VISITED = 0.45
+BORDER_LINEWIDTH_UNVISITED = 0.3
 
 COLOR_MARKER_FILL = "#FBF7EC"  # ivory / parchment
 COLOR_MARKER_BORDER = "#9C7A24"  # antique gold
@@ -61,6 +71,8 @@ INSET_CONTEXT_PAD_DEG = 6.0
 # strip (dead space below the map, never overlapping plotted content).
 # render_poster uses PosterLayout.inset_title_height_frac instead.
 DEFAULT_INSET_TITLE_HEIGHT_FRAC = 0.1
+
+PENDING_LIST_FONT_SIZE = 7.0  # smaller than the missing-numbers note (8.5pt) -- most secondary text on the poster
 
 MARKER_FONT_SIZE_FACTOR = 0.8  # marker number font size = radius_points * this
 # A fixed-radius circle can't grow with the number inside it, so a 3-digit
@@ -92,12 +104,24 @@ def split_visited_unvisited(
 
 def _plot_base_map(ax, geodata: gpd.GeoDataFrame, visited_ids: set[int]) -> None:
     """Draws the shared visited/unvisited polygon styling. Used by both the
-    main map and every inset so they always look like the same system."""
+    main map and every inset so they always look like the same system.
+    Visited-country borders are drawn distinctly darker than unvisited
+    ones so adjacent gold countries don't visually merge into one block."""
     visited_gdf, unvisited_gdf = split_visited_unvisited(geodata, visited_ids)
     if not unvisited_gdf.empty:
-        unvisited_gdf.plot(ax=ax, color=COLOR_UNVISITED, edgecolor=COLOR_BORDER, linewidth=0.3)
+        unvisited_gdf.plot(
+            ax=ax,
+            color=COLOR_UNVISITED,
+            edgecolor=COLOR_BORDER_UNVISITED,
+            linewidth=BORDER_LINEWIDTH_UNVISITED,
+        )
     if not visited_gdf.empty:
-        visited_gdf.plot(ax=ax, color=COLOR_VISITED, edgecolor=COLOR_BORDER, linewidth=0.3)
+        visited_gdf.plot(
+            ax=ax,
+            color=COLOR_VISITED,
+            edgecolor=COLOR_BORDER_VISITED,
+            linewidth=BORDER_LINEWIDTH_VISITED,
+        )
 
 
 def _draw_markers(ax, placements, marker_radius_points, marker_radius_data, debug: bool, collisions_after):
@@ -178,12 +202,22 @@ def _render_main_map_onto_ax(
     label_offsets: dict | None = None,
     marker_radius_points: float = DEFAULT_MARKER_RADIUS_POINTS,
     debug_markers: bool = False,
+    extra_visited_entity_ids: set[int] | None = None,
 ) -> MarkerReport | None:
     """Draws the main world map's polygons and (optionally) markers onto an
     existing Axes. Shared by `render_world_map` (its own figure) and
     `render_poster` (one panel of the full composition) so the two never
-    drift apart."""
+    drift apart.
+
+    `extra_visited_entity_ids`, if given, is unioned into the highlighted
+    (gold) set on top of whatever `mapped_entries` implies -- e.g. visits
+    confirmed by reconciliation.csv but without an established
+    chronological number, which should be highlighted as visited without
+    ever getting a numbered marker (those come only from `mapped_entries`,
+    unaffected by this parameter)."""
     visited_ids = get_visited_entity_ids(mapped_entries)
+    if extra_visited_entity_ids:
+        visited_ids = visited_ids | set(extra_visited_entity_ids)
     projected = geodata.to_crs(ROBINSON_CRS)
     _plot_base_map(ax, projected, visited_ids)
 
@@ -224,6 +258,7 @@ def render_world_map(
     label_offsets: dict | None = None,
     marker_radius_points: float = DEFAULT_MARKER_RADIUS_POINTS,
     debug_markers: bool = False,
+    extra_visited_entity_ids: set[int] | None = None,
 ) -> Figure:
     """
     Renders the main world map: visited entities in antique gold, unvisited
@@ -241,7 +276,9 @@ def render_world_map(
     computed elsewhere (e.g. to print stats) instead of rebuilding it;
     otherwise one is built internally from `label_offsets` (or the on-disk
     default). `debug_markers=True` additionally overlays true anchor
-    points and any unresolved collisions.
+    points and any unresolved collisions. `extra_visited_entity_ids`
+    highlights additional confirmed-visited geography with no numbered
+    marker (see `_render_main_map_onto_ax`).
 
     `preview=True` uses a lower default DPI suitable for on-screen review;
     pass `preview=False` with a higher `dpi` for print-quality output in
@@ -261,6 +298,7 @@ def render_world_map(
         label_offsets=label_offsets,
         marker_radius_points=marker_radius_points,
         debug_markers=debug_markers,
+        extra_visited_entity_ids=extra_visited_entity_ids,
     )
 
     fig.tight_layout(pad=0)
@@ -281,6 +319,7 @@ def _render_inset_onto_ax(
     show_title: bool = True,
     title_font_size: float = 11,
     title_ax=None,
+    extra_visited_entity_ids: set[int] | None = None,
 ) -> MarkerReport | None:
     """Draws one regional inset's polygons and markers onto an existing
     Axes, and its title into a *separate* `title_ax` when given. Shared by
@@ -292,7 +331,8 @@ def _render_inset_onto_ax(
     near its edge, so it can never collide with a marker that happens to
     sit near the frame's bottom -- e.g. Malta on the Europe inset. If
     `title_ax` is omitted, falls back to drawing inside `ax` itself for
-    simple standalone use."""
+    simple standalone use. `extra_visited_entity_ids` -- see
+    `_render_main_map_onto_ax`."""
     crs = inset.crs()
     context_gdf = filter_geodata_to_inset(geodata, inset, pad_deg=INSET_CONTEXT_PAD_DEG)
     projected = context_gdf.to_crs(crs)
@@ -301,6 +341,8 @@ def _render_inset_onto_ax(
     data_width = xlim[1] - xlim[0]
 
     visited_ids = get_visited_entity_ids(mapped_entries)
+    if extra_visited_entity_ids:
+        visited_ids = visited_ids | set(extra_visited_entity_ids)
     _plot_base_map(ax, projected, visited_ids)
 
     if show_markers:
@@ -364,6 +406,7 @@ def render_inset_map(
     marker_radius_points: float = DEFAULT_MARKER_RADIUS_POINTS,
     debug_markers: bool = False,
     show_title: bool = True,
+    extra_visited_entity_ids: set[int] | None = None,
 ) -> Figure:
     """
     Renders one regional inset map: the same visited/unvisited palette and
@@ -397,6 +440,7 @@ def render_inset_map(
         debug_markers=debug_markers,
         show_title=show_title,
         title_ax=title_ax,
+        extra_visited_entity_ids=extra_visited_entity_ids,
     )
 
     return fig
@@ -411,6 +455,7 @@ def render_all_insets(
     dpi: int = 150,
     label_offsets: dict | None = None,
     debug_markers: bool = False,
+    extra_visited_entity_ids: set[int] | None = None,
 ) -> dict[str, Figure]:
     """Renders every configured inset (data/insets.json by default) and
     returns {inset_key: Figure}."""
@@ -426,6 +471,7 @@ def render_all_insets(
             dpi=dpi,
             label_offsets=label_offsets,
             debug_markers=debug_markers,
+            extra_visited_entity_ids=extra_visited_entity_ids,
         )
         for key, inset in insets.items()
     }
@@ -512,7 +558,7 @@ def _draw_index_block(ax, mapped_entries, layout: PosterLayout, missing_count: i
     if missing_count:
         ax.text(
             0.5, 0.02,
-            f"{missing_count} visit numbers currently unresolved in source records.",
+            f"{missing_count} chronological numbers (within 1-205) remain unresolved in source records.",
             ha="center", va="bottom",
             fontsize=typo.missing_note_font_size, style="italic",
             family=typo.body_font_family, color=COLOR_MUTED_TEXT,
@@ -522,17 +568,35 @@ def _draw_index_block(ax, mapped_entries, layout: PosterLayout, missing_count: i
     return num_columns
 
 
-def _draw_footer_block(ax, typo) -> None:
+def _draw_footer_block(ax, typo, pending_names: list[str] | None = None) -> None:
+    """`pending_names`, if given, adds one small, clearly-secondary line
+    listing confirmed-visited places whose chronological position isn't
+    established yet -- see PENDING_LIST_FONT_SIZE. Placed within the
+    footer zone's existing physical size (not changing V1.2's layout
+    proportions); only the footer's own internal spacing shifts slightly
+    to make room."""
     ax.axis("off")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
+
+    main_line_y = 0.55 if pending_names else 0.35
     ax.axhline(0.85, color=COLOR_RULE, linewidth=0.6, xmin=0.42, xmax=0.58)
     ax.text(
-        0.5, 0.35, "Every journey tells a story.",
+        0.5, main_line_y, "Every journey tells a story.",
         ha="center", va="center",
         fontsize=typo.footer_font_size, style="italic",
         family=typo.title_font_family, color=COLOR_MUTED_TEXT,
     )
+
+    if pending_names:
+        names_text = ", ".join(sorted(pending_names)) + "."
+        ax.text(
+            0.5, 0.12,
+            f"Additional confirmed visits, chronology pending: {names_text}",
+            ha="center", va="center",
+            fontsize=PENDING_LIST_FONT_SIZE, style="italic",
+            family=typo.body_font_family, color=COLOR_MUTED_TEXT,
+        )
 
 
 def render_poster(
@@ -545,6 +609,9 @@ def render_poster(
     marker_reports: dict[str, MarkerReport] | None = None,
     dpi: float = 150,
     debug_markers: bool = False,
+    visited_count: int | None = None,
+    extra_visited_entity_ids: set[int] | None = None,
+    pending_names: list[str] | None = None,
 ) -> Figure:
     """
     Composes the full A2 landscape poster: title, main world map, the four
@@ -553,11 +620,29 @@ def render_poster(
     data/poster_layout.json for exact dimensions and zone placement).
 
     `geodata` is never mutated. `mapped_entries` is the full list of valid
-    mapped visit records (typically `ValidationReport.mapped`) -- the
-    title's count and every index entry are derived from it, never
-    hard-coded. `missing_count` (typically `ValidationReport.missing_count`)
-    drives the small "N visit numbers currently unresolved" note; pass 0
-    to omit it.
+    CHRONOLOGICALLY-NUMBERED visit records (typically
+    `ValidationReport.mapped`) -- every numbered marker and every index
+    entry comes from this list, never hard-coded.
+
+    `visited_count`, if given, overrides the title's "N countries and
+    territories visited" figure -- e.g. a merged confirmed-visited count
+    that includes entries with no established chronology yet. Defaults to
+    `len(mapped_entries)` when omitted (V1.2 behavior, unchanged).
+
+    `extra_visited_entity_ids`, if given, additionally highlights that
+    geography as visited (gold fill) on the main map and every inset,
+    without drawing a numbered marker for it -- see
+    `_render_main_map_onto_ax`.
+
+    `pending_names`, if given, adds a small, clearly secondary
+    "Additional confirmed visits, chronology pending" line to the footer
+    -- see `_draw_footer_block`. None of this changes the V1.2 zone sizes
+    (title/main_map/insets_row/index/footer stay exactly as configured in
+    data/poster_layout.json).
+
+    `missing_count` (typically `ValidationReport.missing_count`) drives
+    the small "N chronological numbers unresolved" note; pass 0 to omit
+    it.
 
     Pass `marker_reports` (a dict with keys "main", "europe", "gulf",
     "caribbean", "pacific") to reuse already-built reports -- e.g. so a
@@ -573,9 +658,10 @@ def render_poster(
     fig.patch.set_facecolor(COLOR_BACKGROUND)
 
     mapped_list = list(mapped_entries)
+    title_count = visited_count if visited_count is not None else len(mapped_list)
 
     title_ax = fig.add_axes(layout.title.as_rect())
-    _draw_title_block(title_ax, len(mapped_list), typo)
+    _draw_title_block(title_ax, title_count, typo)
 
     main_ax = fig.add_axes(layout.main_map.as_rect())
     main_ax.set_facecolor(COLOR_BACKGROUND)
@@ -588,6 +674,7 @@ def render_poster(
         label_offsets=label_offsets,
         marker_radius_points=typo.main_marker_radius_points,
         debug_markers=debug_markers,
+        extra_visited_entity_ids=extra_visited_entity_ids,
     )
 
     inset_rects = layout.inset_rects()
@@ -609,12 +696,13 @@ def render_poster(
             debug_markers=debug_markers,
             title_font_size=typo.inset_title_font_size,
             title_ax=title_ax,
+            extra_visited_entity_ids=extra_visited_entity_ids,
         )
 
     index_ax = fig.add_axes(layout.index.as_rect())
     _draw_index_block(index_ax, mapped_list, layout, missing_count)
 
     footer_ax = fig.add_axes(layout.footer.as_rect())
-    _draw_footer_block(footer_ax, typo)
+    _draw_footer_block(footer_ax, typo, pending_names=pending_names)
 
     return fig

@@ -57,12 +57,14 @@ def test_missing_chronology_not_fabricated_in_index(gdf, default_workbook_path, 
     assert index_numbers.isdisjoint(set(report.missing_numbers))
 
 
-def test_unresolved_virgin_islands_not_in_index_or_map(gdf, default_workbook_path, matcher):
+def test_resolved_virgin_islands_appears_once_in_index_with_original_number(gdf, default_workbook_path, matcher):
     report = build_validation_report(default_workbook_path, gdf, matcher)
     layout = load_poster_layout()
     entries, _ = _index_entries(report.mapped, layout)
-    assert all("virgin" not in e.name.lower() for e in entries)
-    assert any("virgin" in u.country_raw.lower() for u in report.unresolved)  # still tracked as unresolved
+    vi_entries = [e for e in entries if "virgin" in e.name.lower()]
+    assert len(vi_entries) == 1
+    assert vi_entries[0].number == 110
+    assert report.unresolved == []  # nothing left unresolved from the old source
 
 
 def test_balkan_records_assigned_to_europe_inset(gdf, default_workbook_path, matcher):
@@ -101,7 +103,9 @@ def test_title_count_equals_valid_mapped_record_count(gdf, default_workbook_path
     (e.g. the Balkan reassignment only moves *where* a visit is drawn)."""
     report = build_validation_report(default_workbook_path, gdf, matcher)
     assert report.mapped_count == len(report.mapped)
-    assert report.mapped_count == 183
+    # 184, not 183: the old bare "Virgin Islands" entry now resolves (see
+    # data/country_aliases.json), reconciled against reconciliation.csv.
+    assert report.mapped_count == 184
 
 
 def test_poster_renderer_returns_valid_figure(gdf, default_workbook_path, matcher):

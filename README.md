@@ -116,9 +116,25 @@ python -m pytest tests/ -v
 
 Anything that doesn't resolve cleanly is reported as unmatched or
 ambiguous in the validation screen -- never guessed. See the `_comment`
-and `_ambiguous_notes` keys in `data/country_aliases.json` for the current
-known ambiguity (a bare "Virgin Islands" entry, which could be US or
-British).
+and `_virgin_islands_resolution` keys in `data/country_aliases.json` for
+how a previously-ambiguous bare "Virgin Islands" entry was resolved.
+
+## Deploy to Streamlit Community Cloud
+
+1. Push this repository to GitHub (the `data/naturalearth/` shapefile is
+   tracked in git, so no separate data setup step is needed on the
+   server; only the raw `.zip` is gitignored).
+2. At [share.streamlit.io](https://share.streamlit.io), create a new app
+   pointing at this repo, branch `master` (or `main`), entry point
+   `app.py`.
+3. In **Advanced settings**, select a Python version matching what was
+   tested locally (see `.venv/pyvenv.cfg` for the exact version) if
+   offered -- otherwise the platform default is fine, since `requirements.txt`
+   pins exact package versions rather than relying on a specific Python
+   build.
+4. No secrets, environment variables, or database are required -- the app
+   only reads its own bundled files and whatever `.xlsx` a visitor
+   uploads for their session; nothing is written back to disk.
 
 ## Data sources
 
@@ -145,7 +161,8 @@ data/
   label_offsets.json        Marker display-target/offset overrides (editable)
   insets.json                Regional inset bounds/projection (editable)
   poster_layout.json         Poster zones, typography sizes (editable)
-  naturalearth/               Cached geographic dataset (gitignored)
+  naturalearth/               Cached geographic dataset (bundled in git;
+                                 auto-downloaded on first run if missing)
   SOURCES.md
 scripts/
   fetch_naturalearth_data.py   One-time dataset download/cache

@@ -64,8 +64,24 @@ def test_nonsense_name_is_unmatched_not_guessed(matcher):
     assert result.entity_ids is None
 
 
-def test_bare_virgin_islands_is_left_ambiguous_or_unmatched_not_guessed(matcher):
-    """There is no single 'Virgin Islands' -- only US and British Virgin
-    Islands separately. The matcher must never silently pick one."""
+def test_bare_virgin_islands_resolves_to_us_virgin_islands(matcher):
+    """Natural Earth has no single 'Virgin Islands' -- only US and British
+    Virgin Islands separately -- so this was left unresolved until
+    reconciliation.csv independently confirmed the traveller's bare
+    'Virgin Islands' entry was specifically the U.S. Virgin Islands (its
+    own explicit 'U.S. Virgin Islands' row, with a note). That is now a
+    real alias, not a guess."""
     result = matcher.match("Virgin Islands")
-    assert result.status in ("unmatched", "ambiguous")
+    assert result.status == "matched"
+    assert result.matched_value == "U.S. Virgin Is."
+
+
+def test_bare_virgin_islands_never_resolves_to_british(matcher):
+    """The resolution must never silently substitute the wrong territory."""
+    result = matcher.match("Virgin Islands")
+    assert result.matched_value != "British Virgin Is."
+
+    british = matcher.match("British Virgin Islands")
+    assert british.status == "matched"
+    assert british.matched_value == "British Virgin Is."
+    assert british.entity_ids != result.entity_ids

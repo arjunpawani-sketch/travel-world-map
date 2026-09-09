@@ -51,12 +51,15 @@ def test_scotland_visit_stays_independent_of_uk_composite(gdf, default_workbook_
     assert uk.visit_number != scotland.visit_number
 
 
-def test_virgin_islands_never_produces_a_placement(gdf, default_workbook_path, matcher):
-    """It is unresolved (not in report.mapped), so it must never reach the
-    placement system -- no fabricated marker."""
+def test_virgin_islands_produces_a_placement_with_its_original_number(gdf, default_workbook_path, matcher):
+    """Now that 'Virgin Islands' resolves (reconciliation.csv confirmed it
+    as the U.S. Virgin Islands), its original old chronological number
+    (110) must be preserved exactly -- not renumbered, not dropped."""
     report = build_validation_report(default_workbook_path, gdf, matcher)
     placements = build_placements(gdf, report.mapped)
-    assert all("virgin" not in p.source_name.lower() for p in placements)
+    vi_placements = [p for p in placements if "virgin" in p.source_name.lower()]
+    assert len(vi_placements) == 1
+    assert vi_placements[0].visit_number == 110
 
 
 def test_label_offsets_config_loads():

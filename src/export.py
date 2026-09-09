@@ -42,10 +42,16 @@ def build_export_figure(
     marker_reports=None,
     label_offsets: dict | None = None,
     debug_markers: bool = False,
+    visited_count: int | None = None,
+    extra_visited_entity_ids: set[int] | None = None,
+    pending_names: list[str] | None = None,
 ):
     """Builds the exact poster composition used for both PDF and PNG
     export. A thin, explicitly-named wrapper around `render_poster` so
-    export call sites read clearly."""
+    export call sites read clearly. `visited_count`,
+    `extra_visited_entity_ids`, and `pending_names` support the merged
+    reconciliation view (src/reconciliation.py) -- see `render_poster`
+    for what each does; all default to V1.2 behavior when omitted."""
     return render_poster(
         gdf,
         mapped_entries,
@@ -56,6 +62,9 @@ def build_export_figure(
         label_offsets=label_offsets,
         dpi=150,  # irrelevant to the PDF's vector output; PNG dpi is set at save time
         debug_markers=debug_markers,
+        visited_count=visited_count,
+        extra_visited_entity_ids=extra_visited_entity_ids,
+        pending_names=pending_names,
     )
 
 
@@ -88,6 +97,9 @@ def export_poster_pdf_and_png(
     label_offsets: dict | None = None,
     png_dpi: int = PNG_EXPORT_DPI,
     debug_markers: bool = False,
+    visited_count: int | None = None,
+    extra_visited_entity_ids: set[int] | None = None,
+    pending_names: list[str] | None = None,
 ) -> tuple[bytes, bytes]:
     """Builds the poster once and returns (pdf_bytes, png_bytes) -- the
     PDF and PNG are guaranteed to show the exact same composition. Closes
@@ -101,6 +113,9 @@ def export_poster_pdf_and_png(
         marker_reports=marker_reports,
         label_offsets=label_offsets,
         debug_markers=debug_markers,
+        visited_count=visited_count,
+        extra_visited_entity_ids=extra_visited_entity_ids,
+        pending_names=pending_names,
     )
     try:
         pdf_bytes = save_pdf_bytes(fig)

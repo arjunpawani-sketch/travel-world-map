@@ -52,7 +52,7 @@
   "Lao PDR": "Laos",
   "Viet Nam": "Vietnam",
 
-  "_ambiguous_notes": {
-    "Virgin Islands": "The workbook has a bare 'Virgin Islands' entry (number 110). Natural Earth has two separate entities: 'U.S. Virgin Is.' and 'British Virgin Is.'. This is intentionally left unresolved here -- it will show as an ambiguous match in validation until you add an explicit 'Virgin Islands': '...' entry above once you know which one was visited."
-  }
+  "_virgin_islands_resolution": "Reconciled 2026: reconciliation.csv independently confirmed the workbook's bare 'Virgin Islands' entry (number 110) as the U.S. Virgin Islands specifically (not British) -- see its 'VI' row's note. Both the old bare text and the new CSV's explicit text now resolve to the same Natural Earth entity below. Never map either to 'British Virgin Is.' without equally explicit source evidence.",
+  "Virgin Islands": "U.S. Virgin Is.",
+  "U.S. Virgin Islands": "U.S. Virgin Is."
 }
