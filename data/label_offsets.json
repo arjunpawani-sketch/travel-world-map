@@ -1,0 +1,58 @@
+{
+  "_comment": "Manual marker-placement overrides, keyed by the country/territory text exactly as it appears in the Excel sheet (case-insensitive, whitespace-normalized). Any entry NOT listed here defaults to display='main', dx=0, dy=0, leader_line=false, scale=1.0 -- i.e. this file only needs to list exceptions.",
+  "_fields": {
+    "display": "Which map this entry's marker is drawn on: 'main', 'europe', 'gulf', 'caribbean', or 'pacific'. Phase 3 only renders 'main'; the others are assignment metadata for the Phase 4 inset maps.",
+    "dx": "Longitude nudge in degrees, applied to the anchor point before projection. Positive = east.",
+    "dy": "Latitude nudge in degrees, applied to the anchor point before projection. Positive = north.",
+    "leader_line": "If true, draw a thin line from the true geographic point to the nudged marker position. If omitted, defaults to true only when dx or dy is non-zero.",
+    "scale": "Marker size multiplier. Omit unless a specific marker genuinely needs to be bigger/smaller than the rest."
+  },
+
+  "_dense_region_defaults": "The entries below are routed away from the main world map because at world scale they are too small and/or too tightly clustered with neighbours to carry a legible marker -- they will get numbered markers on their regional inset map in Phase 4 instead. dx/dy are left at 0 here; real inset-space positioning happens when that inset is built. This list is deliberately conservative (only genuinely tiny/cramped entries) -- everything else stays on 'main' for now, and the Phase 3 collision report shows what (if anything) still needs a manual nudge or a move into this list.",
+
+  "_phase5_balkans_note": "Phase 5: moved off the main map into the Europe inset on request -- the main map was dense enough here that these seven were recommended for the inset back in the Phase 3/4 reports. Visit numbers are unchanged; only display location moves.",
+
+  "Monaco": { "display": "europe" },
+  "San Marino": { "display": "europe" },
+  "Holy See / Vatican City": { "display": "europe" },
+  "Liechtenstein": { "display": "europe" },
+  "Andorra": { "display": "europe" },
+  "Malta": { "display": "europe" },
+  "Luxembourg": { "display": "europe" },
+  "Kosovo": { "display": "europe" },
+  "Albania": { "display": "europe" },
+  "Bosnia and Herzegovina": { "display": "europe" },
+  "Croatia": { "display": "europe" },
+  "Montenegro": { "display": "europe" },
+  "North Macedonia": { "display": "europe" },
+  "Serbia": { "display": "europe" },
+  "Slovenia": { "display": "europe" },
+
+  "Bahrain": { "display": "gulf" },
+  "Qatar": { "display": "gulf" },
+  "Kuwait": { "display": "gulf" },
+  "Cyprus": { "display": "gulf" },
+  "Lebanon": { "display": "gulf" },
+
+  "Antigua and Barbuda": { "display": "caribbean" },
+  "Dominica": { "display": "caribbean" },
+  "Grenada": { "display": "caribbean" },
+  "Guadeloupe": { "display": "caribbean" },
+  "Saint Kitts and Nevis": { "display": "caribbean" },
+  "Saint Vincent and the Grenadines": { "display": "caribbean" },
+  "Barbados": { "display": "caribbean" },
+  "Trinidad and Tobago": { "display": "caribbean" },
+
+  "Kiribati": { "display": "pacific" },
+  "Marshall Islands": { "display": "pacific" },
+  "Micronesia": { "display": "pacific" },
+  "Nauru": { "display": "pacific" },
+  "Niue": { "display": "pacific" },
+  "Palau": { "display": "pacific" },
+  "Samoa": { "display": "pacific" },
+  "Solomon Islands": { "display": "pacific" },
+  "Tonga": { "display": "pacific" },
+  "Tuvalu": { "display": "pacific" },
+  "Vanuatu": { "display": "pacific" },
+  "Cook Islands": { "display": "pacific" }
+}

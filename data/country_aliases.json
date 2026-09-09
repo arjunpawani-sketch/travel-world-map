@@ -1,0 +1,58 @@
+{
+  "_comment": "Maps common/alternate names used in the traveller's Excel sheet to the exact NAME / NAME_LONG / GEOUNIT / FORMAL_EN value used in the Natural Earth dataset. Keys are matched case-insensitively after whitespace/unicode normalization. This file is safe to edit by hand -- add an entry any time a name in an updated Excel file fails to match. Do not guess: only add an entry once you know which geographic entity it should resolve to.",
+
+  "UK": "United Kingdom",
+  "U.K.": "United Kingdom",
+  "Great Britain": "United Kingdom",
+
+  "USA": "United States of America",
+  "U.S.A.": "United States of America",
+  "US": "United States of America",
+  "United States": "United States of America",
+
+  "UAE": "United Arab Emirates",
+  "U.A.E.": "United Arab Emirates",
+
+  "Vatican City": "Vatican",
+  "Holy See": "Vatican",
+  "Holy See / Vatican City": "Vatican",
+
+  "Ivory Coast": "Côte d'Ivoire",
+
+  "Czech Republic": "Czechia",
+
+  "Cape Verde": "Cabo Verde",
+
+  "Türkiye": "Turkey",
+  "Turkiye": "Turkey",
+
+  "Republic of Moldova": "Moldova",
+
+  "Burma": "Myanmar",
+
+  "Swaziland": "Eswatini",
+
+  "East Timor": "Timor-Leste",
+
+  "Republic of Congo": "Republic of the Congo",
+  "Congo-Brazzaville": "Republic of the Congo",
+  "Congo Brazzaville": "Republic of the Congo",
+  "DR Congo": "Democratic Republic of the Congo",
+  "DRC": "Democratic Republic of the Congo",
+  "Congo-Kinshasa": "Democratic Republic of the Congo",
+
+  "Micronesia, Federated States of": "Micronesia",
+  "Federated States of Micronesia": "Micronesia",
+
+  "Republic of Korea": "South Korea",
+  "North Macedonia (Macedonia)": "North Macedonia",
+  "Macedonia": "North Macedonia",
+
+  "Brunei Darussalam": "Brunei",
+  "Lao PDR": "Laos",
+  "Viet Nam": "Vietnam",
+
+  "_ambiguous_notes": {
+    "Virgin Islands": "The workbook has a bare 'Virgin Islands' entry (number 110). Natural Earth has two separate entities: 'U.S. Virgin Is.' and 'British Virgin Is.'. This is intentionally left unresolved here -- it will show as an ambiguous match in validation until you add an explicit 'Virgin Islands': '...' entry above once you know which one was visited."
+  }
+}

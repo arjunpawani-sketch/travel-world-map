@@ -1,0 +1,14 @@
+streamlit==1.63.0
+pandas==3.0.5
+openpyxl==3.1.5
+geopandas==1.1.4
+shapely==2.1.2
+pyproj==3.8.0
+pyogrio==0.13.0
+matplotlib==3.11.1
+rapidfuzz==3.14.6
+pillow==12.3.0
+
+# Testing (not required to run the app itself)
+pytest==9.1.1
+pypdf==6.18.0

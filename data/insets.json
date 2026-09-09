@@ -1,0 +1,39 @@
+{
+  "_comment": "Explicit, editable regional inset bounds and projection choice. Bounds are fixed cartographic framing, not auto-zoomed to whichever entries happen to be visited -- an updated Excel file should never make an inset's framing jump. lon_min/lon_max/lat_min/lat_max define the visible frame in degrees (WGS84). Bounds are generous enough to include surrounding unvisited geography for context, not just the dense/small visited entries themselves.",
+  "_projection_notes": "'lcc' = Lambert Conformal Conic, standard parallels auto-computed at 1/6 and 5/6 of the inset's latitude range, centered on the inset -- a conformal (shape-preserving) projection well suited to mid-latitude east-west-oriented regions like Europe and the Gulf/Eastern Mediterranean, standard choice for this kind of regional atlas map. 'mercator' = conformal, good island-shape fidelity near the tropics, used for the Caribbean. 'eqc' (Plate Carrée / equidistant cylindrical) = used for the Pacific specifically because it handles a custom central meridian (lon_0) cleanly, which is what avoids an antimeridian seam artifact for a region that straddles it.",
+  "_pacific_lon_note": "The Pacific inset's lon_min (125) is numerically greater than lon_max (-145) -- this signals the frame wraps across the antimeridian, matching lon_0=170 (the projection's own central meridian). The real span is about 90 degrees of longitude (Palau to the Cook Islands), not the ~325 degrees a naive min/max reading would suggest.",
+
+  "europe": {
+    "title": "EUROPE",
+    "lon_min": -11,
+    "lon_max": 31,
+    "lat_min": 34,
+    "lat_max": 61,
+    "projection": "lcc"
+  },
+  "gulf": {
+    "title": "GULF & EASTERN MEDITERRANEAN",
+    "lon_min": 30,
+    "lon_max": 56,
+    "lat_min": 11,
+    "lat_max": 38,
+    "projection": "lcc"
+  },
+  "caribbean": {
+    "title": "CARIBBEAN & CENTRAL AMERICA",
+    "lon_min": -90,
+    "lon_max": -58,
+    "lat_min": 7,
+    "lat_max": 27,
+    "projection": "mercator"
+  },
+  "pacific": {
+    "title": "OCEANIA & PACIFIC",
+    "lon_min": 125,
+    "lon_max": -145,
+    "lat_min": -27,
+    "lat_max": 18,
+    "lon_0": 170,
+    "projection": "eqc"
+  }
+}

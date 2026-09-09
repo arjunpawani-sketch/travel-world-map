@@ -1,0 +1,57 @@
+{
+  "_comment": "A2 landscape poster composition layout. All zone rects are Matplotlib figure-fraction coordinates [x, y, width, height], origin at BOTTOM-LEFT of the page (Matplotlib's native convention), so 'y' for a zone near the top of the page is a large number close to 1.0. Editing this file changes the poster layout without touching src/poster.py.",
+  "_page": "Physical page size in millimeters -- true A2 landscape. width_in/height_in are derived (mm / 25.4) and used directly as the Matplotlib figure size so the composition is real-world-sized for later PDF export.",
+
+  "page": {
+    "width_mm": 594,
+    "height_mm": 420
+  },
+
+  "margins": {
+    "left": 0.02,
+    "right": 0.02,
+    "top": 0.015,
+    "bottom": 0.012
+  },
+
+  "_v1.1_note": "V1.1 revision: main_map grown from height 0.35 to 0.45 (the world map is the hero element and was previously letterboxed inside its zone -- Robinson's ~1.99:1 aspect only used its zone's height, not its width, so growing height alone grows the actual rendered map both taller and wider). insets_row reduced 0.19 -> 0.15 (~21%, within the requested 20-25%). index absorbs the remainder (0.285 -> 0.222); title and footer zones are untouched. Gaps between zones stay a uniform 0.01.",
+  "_v1.2_note": "V1.2 revision: main_map grown further, 0.45 -> 0.5404, targeting ~450-475mm (75-80%) effective rendered map width. The index column count is capped by a REAL measured constraint, not a guess: the two longest entries ('Democratic Republic of the Congo', 'Saint Vincent and the Grenadines') render at ~48.9mm at 7.6pt, so a column needs >=~58.7mm to avoid colliding with the next column -- at this gap that caps the index at 9 columns / 21 rows, which sets index height's floor. index_missing_note_reserved_fraction (0.077) and index height (0.1701) are solved together so the missing-numbers note has genuine physical clearance below row 21 (~5.5mm) -- an earlier draft of this revision computed the reserved fraction from index height's *fraction* rather than the note's actual physical size, which left too little room and the note visually collided with the last row; this version reserves real inches, not a coincidental percentage. insets_row reduced a further 15% from V1.1 (0.15 -> 0.1275, slightly beyond the suggested 5-10% -- needed to hit the width target once the index's true minimum was accounted for; verified with the marker/collision system afterward, still 0 collisions). Inter-zone gaps tightened 0.007 -> 0.006. title and footer zones remain untouched (same y/height as V1.0/V1.1).",
+
+  "zones": {
+    "title": { "y": 0.905, "height": 0.078 },
+    "main_map": { "y": 0.3586, "height": 0.5404 },
+    "insets_row": { "y": 0.2251, "height": 0.1275 },
+    "index": { "y": 0.049, "height": 0.1701 },
+    "footer": { "y": 0.015, "height": 0.028 }
+  },
+
+  "inset_width_weights": {
+    "_comment": "Relative width of each inset within the insets row -- Europe is wider because it now carries the Balkan entries in addition to the original microstates.",
+    "europe": 1.35,
+    "gulf": 1.0,
+    "caribbean": 1.05,
+    "pacific": 1.0
+  },
+  "inset_gap": 0.012,
+  "inset_order": ["europe", "gulf", "caribbean", "pacific"],
+  "inset_title_height_frac": 0.1,
+
+  "typography": {
+    "title_font_size": 40,
+    "subtitle_font_size": 17,
+    "secondary_font_size": 12,
+    "inset_title_font_size": 13,
+    "index_font_size": 7.6,
+    "index_line_height_factor": 1.15,
+    "footer_font_size": 10.5,
+    "missing_note_font_size": 8.5,
+    "main_marker_radius_points": 8.5,
+    "inset_marker_radius_points": 8.0,
+    "title_font_family": "serif",
+    "body_font_family": "sans-serif"
+  },
+
+  "index_column_gap": 0.006,
+  "index_min_column_width": 0.1,
+  "index_missing_note_reserved_fraction": 0.077
+}

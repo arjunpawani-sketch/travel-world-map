@@ -1,0 +1,12 @@
+{
+  "_comment": "Some sovereign states the traveller recorded as one entry have no single polygon in the Natural Earth Admin-0 Map Units dataset -- only their constituent home parts do (e.g. the United Kingdom is only present as separate England / Scotland / Wales / N. Ireland geo units). This file lists, for those cases, which real Natural Earth NAME values should be geometrically unioned to represent the entry. This is not fabricated geography -- every listed part is an official Natural Earth polygon; they are simply combined. Keys are matched case-insensitively, same as country_aliases.json. Add an entry here (rather than guessing a single part) whenever the matcher reports an entity as 'ambiguous' with multiple same-sovereign candidates.",
+
+  "_phase4_note": "Discovered during Phase 4 inset visual QA: several visited countries are split by Natural Earth into contiguous domestic administrative sub-polygons under one shared ADMIN value, and the matcher was only picking up one part -- leaving a visible unvisited-colored gap inside an actually-visited country (first spotted as a stray cream patch inside the Balkans on the Europe inset: Bosnia and Herzegovina). The four entries below add the missing contiguous part(s). This is deliberately NOT applied to countries whose 'missing' sibling is a geographically distant overseas territory (e.g. France's Guadeloupe/Martinique/Reunion/Mayotte/French Guiana, Portugal's Madeira/Azores, Norway's Svalbard/Jan Mayen/Bouvet, Netherlands' Caribbean Netherlands, Papua New Guinea's Bougainville, New Zealand's Tokelau, China's Paracel Islands) -- those are correctly left out, consistent with this dataset already treating overseas territories as separately visitable (see Guadeloupe and Zanzibar, which are their own visit entries). Also not applied to Natural Earth 'Overlay' entities (Korean DMZ north/south, Syria's UNDOF Zone), which represent buffer zones, not real additional territory.",
+
+  "United Kingdom": ["England", "Scotland", "Wales", "N. Ireland"],
+  "Antigua and Barbuda": ["Antigua", "Barbuda"],
+  "Bosnia and Herzegovina": ["Fed. of Bos. & Herz.", "Rep. Srpska", "Brcko District"],
+  "Iraq": ["Iraq", "Iraqi Kurdistan"],
+  "Serbia": ["Serbia", "Vojvodina"],
+  "Somalia": ["Somalia", "Puntland"]
+}
